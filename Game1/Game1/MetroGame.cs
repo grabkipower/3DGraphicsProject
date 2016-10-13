@@ -23,6 +23,7 @@ namespace MetroProject
         public const bool DrawTestCube = false;
         Model model;
         List<IPrimitive> primitives;
+        Model Bench;
 
         //Sprite
         SpriteFont spriteText;
@@ -63,6 +64,7 @@ namespace MetroProject
             stationTexture = Content.Load<Texture2D>("metro2");
             platformTexture = Content.Load<Texture2D>("dark");
             spriteText = Content.Load<SpriteFont>("square");
+       //    Bench = Content.Load<Model>("LargeAsteroid");
         }
 
         protected override void UnloadContent()
@@ -102,11 +104,26 @@ namespace MetroProject
                     mesh.Draw();
                 }
 
+
+
+            foreach (ModelMesh mesh in model.Meshes)
+            {
+                foreach (BasicEffect effect in mesh.Effects)
+                {
+                    effect.World = camera.WorldMatrix;
+                    effect.View = camera.ViewMatrix;
+                    effect.Projection = camera.ProjectionMatrix;
+                }
+
+                mesh.Draw();
+            }
+
+
             foreach (var item in primitives)
             {
                 item.Draw(camera, graphics);
             }
-        //    station.Draw(camera, checkerboardTexture, graphics);
+
             base.Draw(gameTime);
 
 
