@@ -20,7 +20,7 @@ namespace MetroProject
         Camera camera;
 
         //Geometric info
-        public const bool DrawTestCube = false;
+        public const bool DrawTestCube = true;
         Model model;
         List<IPrimitive> primitives;
         Model Bench;
@@ -49,9 +49,9 @@ namespace MetroProject
             primitives = new List<IPrimitive>();
             var station = new MetroStation();
             station.Initialize(graphics, new Vector3(36.0f, 16.0f, 102.0f), stationTexture);
-         //   primitives.Add(station);
+            primitives.Add(station);
             var platform = new Platform();
-            platform.Initialize(graphics, new Vector3(24.0f, 4.0f, 102.0f), platformTexture);
+            platform.Initialize(graphics, new Vector3(24.0f, 6.0f, 102.0f), platformTexture);
             primitives.Add(platform);
 
         }
@@ -90,6 +90,10 @@ namespace MetroProject
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            foreach (var item in primitives)
+            {
+                item.Draw(camera, graphics);
+            }
             if (DrawTestCube)
                 foreach (ModelMesh mesh in model.Meshes)
                 {
@@ -106,23 +110,19 @@ namespace MetroProject
 
 
 
-            foreach (ModelMesh mesh in model.Meshes)
-            {
-                foreach (BasicEffect effect in mesh.Effects)
-                {
-                    effect.World = camera.WorldMatrix;
-                    effect.View = camera.ViewMatrix;
-                    effect.Projection = camera.ProjectionMatrix;
-                }
+            //foreach (ModelMesh mesh in model.Meshes)
+            //{
+            //    foreach (BasicEffect effect in mesh.Effects)
+            //    {
+            //        effect.World = camera.WorldMatrix;
+            //        effect.View = camera.ViewMatrix;
+            //        effect.Projection = camera.ProjectionMatrix;
+            //    }
 
-                mesh.Draw();
-            }
+            //    mesh.Draw();
+            //}
 
 
-            foreach (var item in primitives)
-            {
-                item.Draw(camera, graphics);
-            }
 
             base.Draw(gameTime);
 

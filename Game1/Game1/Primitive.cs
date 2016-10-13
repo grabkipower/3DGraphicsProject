@@ -22,7 +22,7 @@ namespace Game1
         {
             // _basicEffect.AmbientLightColor = new Vector3(1f, 0, 0);
             _basicEffect.View = camera.ViewMatrix;
-            //    _basicEffect.World = camera.WorldMatrix;
+                _basicEffect.World = camera.WorldMatrix;
             _basicEffect.Projection = camera.ProjectionMatrix;
 
 
