@@ -28,7 +28,7 @@ namespace MetroProject
         //Sprite
         SpriteFont spriteText;
 
-        
+
         public MetroGame()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -38,7 +38,7 @@ namespace MetroProject
         protected override void Initialize()
         {
             base.Initialize();
-                      
+
             //Setup Camera
             camera = new Camera();
             Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
@@ -49,11 +49,11 @@ namespace MetroProject
             primitives = new List<IPrimitive>();
             var station = new MetroStation();
             station.Initialize(graphics, new Vector3(36.0f, 16.0f, 102.0f), stationTexture);
-            primitives.Add(station);
+         //   primitives.Add(station);
             var platform = new Platform();
             platform.Initialize(graphics, new Vector3(24.0f, 4.0f, 102.0f), platformTexture);
             primitives.Add(platform);
-            
+
         }
 
         protected override void LoadContent()
@@ -64,7 +64,7 @@ namespace MetroProject
             stationTexture = Content.Load<Texture2D>("metro2");
             platformTexture = Content.Load<Texture2D>("dark");
             spriteText = Content.Load<SpriteFont>("square");
-       //    Bench = Content.Load<Model>("LargeAsteroid");
+            //    Bench = Content.Load<Model>("LargeAsteroid");
         }
 
         protected override void UnloadContent()
