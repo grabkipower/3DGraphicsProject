@@ -15,7 +15,7 @@ namespace Game1
             Size = _size;
             TriangleNum = 12;
             texture = _texture;
-            _vertices = new VertexPositionTexture[36];
+            _vertices = new VertexPositionNormalTexture[36];
             Vector3 Position = new Vector3(0, -3.0f*Size.Y, 0);
 
             // Calculate the position of the vertices on the top face.
@@ -45,52 +45,52 @@ namespace Game1
             Vector2 textureBottomRight = new Vector2(0.0f, 1.0f);
 
             // Add the vertices for the FRONT face.
-            _vertices[0] = new VertexPositionTexture(topLeftFront, textureTopLeft);
-            _vertices[1] = new VertexPositionTexture(btmLeftFront, textureBottomLeft);
-            _vertices[2] = new VertexPositionTexture(topRightFront, textureTopRight);
-            _vertices[3] = new VertexPositionTexture(btmLeftFront, textureBottomLeft);
-            _vertices[4] = new VertexPositionTexture(btmRightFront, textureBottomRight);
-            _vertices[5] = new VertexPositionTexture(topRightFront, textureTopRight);
+            _vertices[0] = new VertexPositionNormalTexture(topLeftFront, normalFront, textureTopLeft);
+            _vertices[1] = new VertexPositionNormalTexture(btmLeftFront, normalFront, textureBottomLeft);
+            _vertices[2] = new VertexPositionNormalTexture(topRightFront, normalFront, textureTopRight);
+            _vertices[3] = new VertexPositionNormalTexture(btmLeftFront, normalFront, textureBottomLeft);
+            _vertices[4] = new VertexPositionNormalTexture(btmRightFront, normalFront, textureBottomRight);
+            _vertices[5] = new VertexPositionNormalTexture(topRightFront, normalFront, textureTopRight);
 
             // Add the vertices for the BACK face.
-            _vertices[6] = new VertexPositionTexture(topLeftBack, textureTopRight);
-            _vertices[7] = new VertexPositionTexture(topRightBack, textureTopLeft);
-            _vertices[8] = new VertexPositionTexture(btmLeftBack, textureBottomRight);
-            _vertices[9] = new VertexPositionTexture(btmLeftBack, textureBottomRight);
-            _vertices[10] = new VertexPositionTexture(topRightBack, textureTopLeft);
-            _vertices[11] = new VertexPositionTexture(btmRightBack, textureBottomLeft);
+            _vertices[6] = new VertexPositionNormalTexture(topLeftBack, normalBack, textureTopRight);
+            _vertices[7] = new VertexPositionNormalTexture(topRightBack, normalBack, textureTopLeft);
+            _vertices[8] = new VertexPositionNormalTexture(btmLeftBack, normalBack, textureBottomRight);
+            _vertices[9] = new VertexPositionNormalTexture(btmLeftBack, normalBack, textureBottomRight);
+            _vertices[10] = new VertexPositionNormalTexture(topRightBack, normalBack, textureTopLeft);
+            _vertices[11] = new VertexPositionNormalTexture(btmRightBack, normalBack, textureBottomLeft);
 
             // Add the vertices for the TOP face.
-            _vertices[12] = new VertexPositionTexture(topLeftFront, textureBottomLeft);
-            _vertices[13] = new VertexPositionTexture(topRightBack, textureTopRight);
-            _vertices[14] = new VertexPositionTexture(topLeftBack, textureTopLeft);
-            _vertices[15] = new VertexPositionTexture(topLeftFront, textureBottomLeft);
-            _vertices[16] = new VertexPositionTexture(topRightFront, textureBottomRight);
-            _vertices[17] = new VertexPositionTexture(topRightBack, textureTopRight);
+            _vertices[12] = new VertexPositionNormalTexture(topLeftFront, normalTop, textureBottomLeft);
+            _vertices[13] = new VertexPositionNormalTexture(topRightBack, normalTop, textureTopRight);
+            _vertices[14] = new VertexPositionNormalTexture(topLeftBack, normalTop, textureTopLeft);
+            _vertices[15] = new VertexPositionNormalTexture(topLeftFront, normalTop, textureBottomLeft);
+            _vertices[16] = new VertexPositionNormalTexture(topRightFront, normalTop, textureBottomRight);
+            _vertices[17] = new VertexPositionNormalTexture(topRightBack, normalTop, textureTopRight);
 
             // Add the vertices for the BOTTOM face. 
-            _vertices[18] = new VertexPositionTexture(btmLeftFront, textureTopLeft);
-            _vertices[19] = new VertexPositionTexture(btmLeftBack, textureBottomLeft);
-            _vertices[20] = new VertexPositionTexture(btmRightBack, textureBottomRight);
-            _vertices[21] = new VertexPositionTexture(btmLeftFront, textureTopLeft);
-            _vertices[22] = new VertexPositionTexture(btmRightBack, textureBottomRight);
-            _vertices[23] = new VertexPositionTexture(btmRightFront, textureTopRight);
+            _vertices[18] = new VertexPositionNormalTexture(btmLeftFront, normalBottom, textureTopLeft);
+            _vertices[19] = new VertexPositionNormalTexture(btmLeftBack, normalBottom, textureBottomLeft);
+            _vertices[20] = new VertexPositionNormalTexture(btmRightBack, normalBottom, textureBottomRight);
+            _vertices[21] = new VertexPositionNormalTexture(btmLeftFront, normalBottom, textureTopLeft);
+            _vertices[22] = new VertexPositionNormalTexture(btmRightBack, normalBottom, textureBottomRight);
+            _vertices[23] = new VertexPositionNormalTexture(btmRightFront, normalBottom, textureTopRight);
 
             // Add the vertices for the LEFT face.
-            _vertices[24] = new VertexPositionTexture(topLeftFront, textureTopRight);
-            _vertices[25] = new VertexPositionTexture(btmLeftBack, textureBottomLeft);
-            _vertices[26] = new VertexPositionTexture(btmLeftFront, textureBottomRight);
-            _vertices[27] = new VertexPositionTexture(topLeftBack, textureTopLeft);
-            _vertices[28] = new VertexPositionTexture(btmLeftBack, textureBottomLeft);
-            _vertices[29] = new VertexPositionTexture(topLeftFront, textureTopRight);
+            _vertices[24] = new VertexPositionNormalTexture(topLeftFront, normalLeft, textureTopRight);
+            _vertices[25] = new VertexPositionNormalTexture(btmLeftBack, normalLeft, textureBottomLeft);
+            _vertices[26] = new VertexPositionNormalTexture(btmLeftFront, normalLeft, textureBottomRight);
+            _vertices[27] = new VertexPositionNormalTexture(topLeftBack, normalLeft, textureTopLeft);
+            _vertices[28] = new VertexPositionNormalTexture(btmLeftBack, normalLeft, textureBottomLeft);
+            _vertices[29] = new VertexPositionNormalTexture(topLeftFront, normalLeft, textureTopRight);
 
             // Add the vertices for the RIGHT face. 
-            _vertices[30] = new VertexPositionTexture(topRightFront, textureTopLeft);
-            _vertices[31] = new VertexPositionTexture(btmRightFront, textureBottomLeft);
-            _vertices[32] = new VertexPositionTexture(btmRightBack, textureBottomRight);
-            _vertices[33] = new VertexPositionTexture(topRightBack, textureTopRight);
-            _vertices[34] = new VertexPositionTexture(topRightFront, textureTopLeft);
-            _vertices[35] = new VertexPositionTexture(btmRightBack, textureBottomRight);
+            _vertices[30] = new VertexPositionNormalTexture(topRightFront, normalRight, textureTopLeft);
+            _vertices[31] = new VertexPositionNormalTexture(btmRightFront, normalRight, textureBottomLeft);
+            _vertices[32] = new VertexPositionNormalTexture(btmRightBack, normalRight, textureBottomRight);
+            _vertices[33] = new VertexPositionNormalTexture(topRightBack, normalRight, textureTopRight);
+            _vertices[34] = new VertexPositionNormalTexture(topRightFront, normalRight, textureTopLeft);
+            _vertices[35] = new VertexPositionNormalTexture(btmRightBack, normalRight, textureBottomRight);
 
 //            _vertices = _vertices.Reverse().ToArray();
 

@@ -15,6 +15,7 @@ namespace MetroProject
         Texture2D checkerboardTexture;
         Texture2D stationTexture;
         Texture2D platformTexture;
+        Texture2D robotTexture;
 
         //Camera
         Camera camera;
@@ -27,6 +28,9 @@ namespace MetroProject
 
         //Sprite
         SpriteFont spriteText;
+
+        // Effects
+        Effect LightEffect;
 
 
         public MetroGame()
@@ -49,9 +53,11 @@ namespace MetroProject
             primitives = new List<IPrimitive>();
             var station = new MetroStation();
             station.Initialize(graphics, new Vector3(36.0f, 16.0f, 102.0f), stationTexture);
+            station.LightingEffect = LightEffect;
             primitives.Add(station);
             var platform = new Platform();
             platform.Initialize(graphics, new Vector3(24.0f, 6.0f, 102.0f), platformTexture);
+            platform.LightingEffect = LightEffect;
             primitives.Add(platform);
 
         }
@@ -61,10 +67,12 @@ namespace MetroProject
             spriteBatch = new SpriteBatch(GraphicsDevice);
             model = Content.Load<Model>("MonoCube");
             checkerboardTexture = Content.Load<Texture2D>("check");
-            stationTexture = Content.Load<Texture2D>("metro2");
+            stationTexture = Content.Load<Texture2D>("brick2");
             platformTexture = Content.Load<Texture2D>("dark");
             spriteText = Content.Load<SpriteFont>("square");
-            //    Bench = Content.Load<Model>("LargeAsteroid");
+            Bench = Content.Load<Model>("robot");
+            LightEffect = Content.Load<Effect>("lighting");
+            robotTexture = Content.Load<Texture2D>("robottexture_0");
         }
 
         protected override void UnloadContent()
@@ -90,11 +98,22 @@ namespace MetroProject
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            //RasterizerState rasterizerState = new RasterizerState();
+            //rasterizerState.CullMode = CullMode.None;
+            //GraphicsDevice.RasterizerState = rasterizerState;
+
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+
+
+
             foreach (var item in primitives)
             {
                 item.Draw(camera, graphics);
             }
             if (DrawTestCube)
+            {
+
+                Matrix world = Matrix.CreateTranslation(new Vector3(3, 3, 3));
                 foreach (ModelMesh mesh in model.Meshes)
                 {
                     foreach (BasicEffect effect in mesh.Effects)
@@ -102,19 +121,20 @@ namespace MetroProject
                         //effect.EnableDefaultLighting();
                         effect.AmbientLightColor = new Vector3(1f, 0, 0);
                         effect.View = camera.ViewMatrix;
-                        effect.World = camera.WorldMatrix;
+                        effect.World = world;
                         effect.Projection = camera.ProjectionMatrix;
+                        //effect.Texture = stationTexture;
                     }
                     mesh.Draw();
                 }
+            }
 
-
-
-            //foreach (ModelMesh mesh in model.Meshes)
+            //Matrix world2 = Matrix.CreateTranslation(new Vector3(1, 2, 1));
+            //foreach (ModelMesh mesh in Bench.Meshes)
             //{
             //    foreach (BasicEffect effect in mesh.Effects)
             //    {
-            //        effect.World = camera.WorldMatrix;
+            //        effect.World = world2;
             //        effect.View = camera.ViewMatrix;
             //        effect.Projection = camera.ProjectionMatrix;
             //    }
@@ -122,6 +142,26 @@ namespace MetroProject
             //    mesh.Draw();
             //}
 
+            Matrix world3 = Matrix.CreateTranslation(new Vector3(8.0f, -10.0f, 1.0f));
+            foreach (ModelMesh mesh in Bench.Meshes)
+            {
+                foreach( ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = LightEffect;
+                    ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform,world3);                    
+                }
+                mesh.Draw();
+            }
+            Matrix world5 = Matrix.CreateTranslation(new Vector3(18.0f, 10.0f, 5.0f));
+            foreach (ModelMesh mesh in Bench.Meshes)
+            {
+                foreach (ModelMeshPart part in mesh.MeshParts)
+                {
+                    part.Effect = LightEffect;
+                    ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world5);
+                }
+                mesh.Draw();
+            }
 
 
             base.Draw(gameTime);
@@ -130,6 +170,9 @@ namespace MetroProject
             spriteBatch.Begin();
             spriteBatch.DrawString(spriteText, "camPos:" + camera.CamPosition.ToString(), new Vector2(10, 10), Color.White);
             spriteBatch.End();
+
+            
+            ShaderHelper.ChangeColor(0.01f);
         }
     }
 }
