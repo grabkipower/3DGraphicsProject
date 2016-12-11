@@ -96,7 +96,7 @@ namespace MetroProject
             checkboxCheckedTexture = Content.Load<Texture2D>("checked");
             checkboxUncheckedTexture = Content.Load<Texture2D>("unchecked");
             additionalTexture = Content.Load<Texture2D>("metro2");
-            stationTexture = CreateStaticMap(1000);
+         //   stationTexture = CreateStaticMap(1000);
         }
 
         private Texture2D CreateStaticMap(int resolution)
