@@ -158,3 +158,9 @@
 /processorParam:TextureFormat=Color
 /build:checked.png
 
+#begin gaussianblur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:gaussianblur.fx
+

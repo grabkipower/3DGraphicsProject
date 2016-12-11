@@ -40,6 +40,7 @@ namespace MetroProject
 
         // Effects
         Effect LightEffect;
+        Effect GausianBlur;
 
 
         // Program controls
@@ -108,7 +109,8 @@ namespace MetroProject
             checkboxCheckedTexture = Content.Load<Texture2D>("checked");
             checkboxUncheckedTexture = Content.Load<Texture2D>("unchecked");
             additionalTexture = Content.Load<Texture2D>("metro2");
-         //   stationTexture = CreateStaticMap(1000);
+            GausianBlur = Content.Load<Effect>("gaussianblur");
+            //   stationTexture = CreateStaticMap(1000);
         }
 
         private Texture2D CreateStaticMap(int resolution)
@@ -210,8 +212,8 @@ namespace MetroProject
 
             renderTargetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                  SamplerState.LinearClamp, DepthStencilState.Default,
-                 RasterizerState.CullNone);
-            renderTargetBatch.Draw(renderTarget, new Rectangle(0, 0, 100, 100),Color.White);
+                 RasterizerState.CullNone, GausianBlur);
+            renderTargetBatch.Draw(renderTarget, destinationRectangle : new Rectangle(0, 0, 400, 400), color: Color.White);
             renderTargetBatch.End();
 
             base.Draw(gameTime);
@@ -260,7 +262,6 @@ namespace MetroProject
             GraphicsDevice.SamplerStates[0] = ss;
             return ss;
         }
-
         private void DrawCube()
         {
             if (DrawTestCube)
@@ -283,7 +284,6 @@ namespace MetroProject
                 }
             }
         }
-
         private void DrawShipsShifted()
         {
             Matrix world3 = Matrix.CreateTranslation(new Vector3(8.0f, -10.0f, 1.0f));
@@ -309,7 +309,6 @@ namespace MetroProject
                 mesh.Draw();
             }
         }
-
         private void DrawInfoText(SamplerState ss)
         {
             spriteBatch.Begin();
@@ -322,7 +321,6 @@ namespace MetroProject
                 , new Vector2(10, 10), Color.White);
             spriteBatch.End();
         }
-
         private void HandleGui()
         {
             Rectangle MagFilterRect = new Rectangle();
@@ -334,7 +332,6 @@ namespace MetroProject
 
             this.IsMouseVisible = true;
         }
-
         private void HandleFog( BasicEffect effect)
         {
             effect.FogEnabled = true;
