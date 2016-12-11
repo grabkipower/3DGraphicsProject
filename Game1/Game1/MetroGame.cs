@@ -13,6 +13,7 @@ namespace MetroProject
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteBatch renderTargetBatch;
         SpriteBatch GuiBatch;
         Texture2D checkerboardTexture;
         Texture2D stationTexture;
@@ -22,6 +23,8 @@ namespace MetroProject
         Texture2D checkboxCheckedTexture;
         Texture2D checkboxUncheckedTexture;
         Texture2D additionalTexture;
+        
+        RenderTarget2D renderTarget;
 
         //Camera
         Camera camera;
@@ -78,11 +81,20 @@ namespace MetroProject
             platform.LightingEffect = LightEffect;
             primitives.Add(platform);
 
+            renderTarget = new RenderTarget2D(
+                GraphicsDevice,
+                GraphicsDevice.PresentationParameters.BackBufferWidth,
+                GraphicsDevice.PresentationParameters.BackBufferHeight,
+                false,
+                GraphicsDevice.PresentationParameters.BackBufferFormat,
+                DepthFormat.Depth24);
+
         }
 
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            renderTargetBatch = new SpriteBatch(GraphicsDevice);
             GuiBatch = new SpriteBatch(GraphicsDevice);
             model = Content.Load<Model>("MonoCube");
             checkerboardTexture = Content.Load<Texture2D>("check");
@@ -173,21 +185,61 @@ namespace MetroProject
         }
 
 
+        protected void DrawSceneToTexture(RenderTarget2D renderTarget, GameTime gameTime)
+        {
+            // Set the render target
+            GraphicsDevice.SetRenderTarget(renderTarget);
+
+  
+
+            // Draw the scene
+         //   GraphicsDevice.Clear(Color.CornflowerBlue);
+            DrawScene(gameTime);
+
+            // Drop the render target
+            GraphicsDevice.SetRenderTarget(null);
+        }
 
         protected override void Draw(GameTime gameTime)
         {
-
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
-            //RasterizerState rasterizerState = new RasterizerState();
-            //rasterizerState.CullMode = CullMode.None;
-            //GraphicsDevice.RasterizerState = rasterizerState;
+            GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
+            DrawSceneToTexture(renderTarget, gameTime);      
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            DrawScene(gameTime);
 
-            //GraphicsDevice.SamplerStates[0].MaxMipLevel
-            //GraphicsDevice.SamplerStates[1].MipMapLevelOfDetailBias = -16.0f;
+            renderTargetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
+                 SamplerState.LinearClamp, DepthStencilState.Default,
+                 RasterizerState.CullNone);
+            renderTargetBatch.Draw(renderTarget, new Rectangle(0, 0, 100, 100),Color.White);
+            renderTargetBatch.End();
 
+            base.Draw(gameTime);
+            ShaderHelper.ChangeColor(0.01f);
+        }
+
+        private void DrawScene(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+           
+
+            var ss = SetSamplerState();
+            graphics.PreferMultiSampling = MultiSampling;
+            foreach (var item in primitives)
+            {
+                item.Draw(camera, graphics);
+            }
+            DrawCube();
+            DrawShipsShifted();
+
+        //    base.Draw(gameTime);
+
+            DrawInfoText(ss);
+            if (GUIActive) HandleGui(); else IsMouseVisible = false;
+        }
+
+        private SamplerState SetSamplerState()
+        {
             // https://github.com/labnation/MonoGame/blob/master/Tools/2MGFX/SamplerStateInfo.cs
 
             SamplerState ss = new SamplerState();
@@ -206,19 +258,11 @@ namespace MetroProject
             else if (!MagFilter && !MipMapFilter)
                 ss.Filter = TextureFilter.Point;
             GraphicsDevice.SamplerStates[0] = ss;
+            return ss;
+        }
 
-
-
-          
-
-
-            graphics.PreferMultiSampling = MultiSampling;
-
-
-            foreach (var item in primitives)
-            {
-                item.Draw(camera, graphics);
-            }
+        private void DrawCube()
+        {
             if (DrawTestCube)
             {
 
@@ -238,22 +282,10 @@ namespace MetroProject
                     mesh.Draw();
                 }
             }
+        }
 
-        
-
-            //Matrix world2 = Matrix.CreateTranslation(new Vector3(1, 2, 1));
-            //foreach (ModelMesh mesh in Bench.Meshes)
-            //{
-            //    foreach (BasicEffect effect in mesh.Effects)
-            //    {
-            //        effect.World = world2;
-            //        effect.View = camera.ViewMatrix;
-            //        effect.Projection = camera.ProjectionMatrix;
-            //    }
-
-            //    mesh.Draw();
-            //}
-
+        private void DrawShipsShifted()
+        {
             Matrix world3 = Matrix.CreateTranslation(new Vector3(8.0f, -10.0f, 1.0f));
             foreach (ModelMesh mesh in Bench.Meshes)
             {
@@ -261,8 +293,8 @@ namespace MetroProject
                 {
                     part.Effect = LightEffect;
                     ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world3);
-                   
-                }             
+
+                }
                 mesh.Draw();
             }
             Matrix world5 = Matrix.CreateTranslation(new Vector3(18.0f, 10.0f, 5.0f));
@@ -272,15 +304,14 @@ namespace MetroProject
                 {
                     part.Effect = LightEffect;
                     ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world5);
-                   // HandleFog(LightEffect);
+                    // HandleFog(LightEffect);
                 }
                 mesh.Draw();
             }
+        }
 
-
-            base.Draw(gameTime);
-
-
+        private void DrawInfoText(SamplerState ss)
+        {
             spriteBatch.Begin();
             spriteBatch.DrawString(spriteText, "camPos:" + camera.CamPosition.ToString() +
                 " | AntiAliasing: " + MultiSampling +
@@ -290,9 +321,6 @@ namespace MetroProject
 
                 , new Vector2(10, 10), Color.White);
             spriteBatch.End();
-            if (GUIActive) HandleGui(); else IsMouseVisible = false;
-
-            ShaderHelper.ChangeColor(0.01f);
         }
 
         private void HandleGui()
@@ -314,5 +342,7 @@ namespace MetroProject
             effect.FogStart = 9.75f;
             effect.FogEnd = 10.25f;
         }
+
+
     }
 }
