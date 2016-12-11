@@ -12,10 +12,14 @@ namespace MetroProject
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteBatch GuiBatch;
         Texture2D checkerboardTexture;
         Texture2D stationTexture;
         Texture2D platformTexture;
         Texture2D robotTexture;
+        Texture2D guiTexture;
+        Texture2D checkboxCheckedTexture;
+        Texture2D checkboxUncheckedTexture;
 
         //Camera
         Camera camera;
@@ -31,6 +35,18 @@ namespace MetroProject
 
         // Effects
         Effect LightEffect;
+
+
+        // Program controls
+        bool MultiSampling = true;
+        bool PreviouslyPressedU = false;
+        bool PreviouslyPressedB = false;
+        bool PreviouslyPressedN = false;
+        bool PreviouslyPressedSpace = false;
+        float MipMapDepthLevels = 0.0f;
+        bool MagFilter = false;
+        bool MipMapFilter = false;
+        bool GUIActive = false;
 
 
         public MetroGame()
@@ -65,6 +81,7 @@ namespace MetroProject
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            GuiBatch = new SpriteBatch(GraphicsDevice);
             model = Content.Load<Model>("MonoCube");
             checkerboardTexture = Content.Load<Texture2D>("check");
             stationTexture = Content.Load<Texture2D>("brick2");
@@ -73,6 +90,9 @@ namespace MetroProject
             Bench = Content.Load<Model>("robot");
             LightEffect = Content.Load<Effect>("lighting");
             robotTexture = Content.Load<Texture2D>("robottexture_0");
+            guiTexture = Content.Load<Texture2D>("gui");
+            checkboxCheckedTexture = Content.Load<Texture2D>("checked");
+            checkboxUncheckedTexture = Content.Load<Texture2D>("unchecked");
         }
 
         protected override void UnloadContent()
@@ -86,8 +106,51 @@ namespace MetroProject
                 Keys.Escape))
                 Exit();
 
-            float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 2000.0f;
-            camera.ProcessInput(timeDifference, graphics);
+            if (!GUIActive)
+            {
+                float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 2000.0f;
+                camera.ProcessInput(timeDifference, graphics);
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.U) && PreviouslyPressedU == false)
+            {
+                MultiSampling = !MultiSampling;
+                PreviouslyPressedU = true;
+            }
+            if (!Keyboard.GetState().IsKeyDown(Keys.U))
+                PreviouslyPressedU = false;
+
+
+            if (!Keyboard.GetState().IsKeyDown(Keys.I))
+                MipMapDepthLevels -= 0.05f;
+
+            if (!Keyboard.GetState().IsKeyDown(Keys.L))
+                MipMapDepthLevels += 0.05f;
+
+
+            if (Keyboard.GetState().IsKeyDown(Keys.B) && PreviouslyPressedB == false)
+            {
+                MagFilter = !MagFilter;
+                PreviouslyPressedB = true;
+            }
+            if (!Keyboard.GetState().IsKeyDown(Keys.B))
+                PreviouslyPressedB = false;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.N) && PreviouslyPressedN == false)
+            {
+                MipMapFilter = !MipMapFilter;
+                PreviouslyPressedN = true;
+            }
+            if (!Keyboard.GetState().IsKeyDown(Keys.N))
+                PreviouslyPressedN = false;
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && PreviouslyPressedSpace == false)
+            {
+                GUIActive = !GUIActive;
+                PreviouslyPressedSpace = true;
+            }
+            if (!Keyboard.GetState().IsKeyDown(Keys.Space))
+                PreviouslyPressedSpace = false;
 
             base.Update(gameTime);
         }
@@ -96,6 +159,7 @@ namespace MetroProject
 
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             //RasterizerState rasterizerState = new RasterizerState();
@@ -104,6 +168,34 @@ namespace MetroProject
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
 
+            //GraphicsDevice.SamplerStates[0].MaxMipLevel
+            //GraphicsDevice.SamplerStates[1].MipMapLevelOfDetailBias = -16.0f;
+
+            // https://github.com/labnation/MonoGame/blob/master/Tools/2MGFX/SamplerStateInfo.cs
+
+            SamplerState ss = new SamplerState();
+
+            ss.Filter = TextureFilter.Point;
+            ss.MaxMipLevel = 0;
+            ss.AddressU = TextureAddressMode.Wrap;
+            ss.AddressV = TextureAddressMode.Wrap;
+            ss.MipMapLevelOfDetailBias = MipMapDepthLevels;
+            if (MagFilter && MipMapFilter)
+                ss.Filter = TextureFilter.Linear;
+            else if (!MagFilter && MipMapFilter)
+                ss.Filter = TextureFilter.PointMipLinear;
+            else if (MagFilter && !MipMapFilter)
+                ss.Filter = TextureFilter.LinearMipPoint;
+            else if (!MagFilter && !MipMapFilter)
+                ss.Filter = TextureFilter.Point;
+            GraphicsDevice.SamplerStates[0] = ss;
+
+
+
+
+
+
+            graphics.PreferMultiSampling = MultiSampling;
 
 
             foreach (var item in primitives)
@@ -145,10 +237,10 @@ namespace MetroProject
             Matrix world3 = Matrix.CreateTranslation(new Vector3(8.0f, -10.0f, 1.0f));
             foreach (ModelMesh mesh in Bench.Meshes)
             {
-                foreach( ModelMeshPart part in mesh.MeshParts)
+                foreach (ModelMeshPart part in mesh.MeshParts)
                 {
                     part.Effect = LightEffect;
-                    ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform,world3);                    
+                    ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world3);
                 }
                 mesh.Draw();
             }
@@ -168,11 +260,29 @@ namespace MetroProject
 
 
             spriteBatch.Begin();
-            spriteBatch.DrawString(spriteText, "camPos:" + camera.CamPosition.ToString(), new Vector2(10, 10), Color.White);
-            spriteBatch.End();
+            spriteBatch.DrawString(spriteText, "camPos:" + camera.CamPosition.ToString() +
+                " | AntiAliasing: " + MultiSampling +
+                " | MipMapLevelOfDetails: " + MipMapDepthLevels +
+                " | FilterType: " + ss.Filter.ToString()
 
-            
+
+                , new Vector2(10, 10), Color.White);
+            spriteBatch.End();
+            if (GUIActive) HandleGui(); else IsMouseVisible = false;
+
             ShaderHelper.ChangeColor(0.01f);
+        }
+
+        private void HandleGui()
+        {
+            Rectangle MagFilterRect = new Rectangle();
+
+            GuiBatch.Begin();
+            GuiBatch.Draw(guiTexture, new Vector2(0.0f), Color.White);
+            GuiBatch.Draw(checkboxCheckedTexture,  destinationRectangle: new Rectangle(50, 50, 30, 30));
+            GuiBatch.End();
+
+            this.IsMouseVisible = true;
         }
     }
 }
