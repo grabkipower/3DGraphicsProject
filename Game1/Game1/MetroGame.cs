@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,6 +21,7 @@ namespace MetroProject
         Texture2D guiTexture;
         Texture2D checkboxCheckedTexture;
         Texture2D checkboxUncheckedTexture;
+        Texture2D additionalTexture;
 
         //Camera
         Camera camera;
@@ -93,6 +95,21 @@ namespace MetroProject
             guiTexture = Content.Load<Texture2D>("gui");
             checkboxCheckedTexture = Content.Load<Texture2D>("checked");
             checkboxUncheckedTexture = Content.Load<Texture2D>("unchecked");
+            additionalTexture = Content.Load<Texture2D>("metro2");
+            stationTexture = CreateStaticMap(1000);
+        }
+
+        private Texture2D CreateStaticMap(int resolution)
+        {
+            Random rand = new Random();
+            Color[] noisyColors = new Color[resolution * resolution];
+            for (int x = 0; x < resolution; x++)
+                for (int y = 0; y < resolution; y++)
+                    noisyColors[x + y * resolution] = new Color(new Vector3((float)rand.Next(1000) / 1000.0f, (float)rand.Next(1000) / 1000.0f, (float)rand.Next(1000) / 1000.0f));
+
+            Texture2D noiseImage = new Texture2D(GraphicsDevice, resolution, resolution);//, 1, TextureUsage.None, SurfaceFormat.Color);
+            noiseImage.SetData(noisyColors);
+            return noiseImage;
         }
 
         protected override void UnloadContent()
@@ -192,7 +209,7 @@ namespace MetroProject
 
 
 
-
+          
 
 
             graphics.PreferMultiSampling = MultiSampling;
@@ -216,10 +233,13 @@ namespace MetroProject
                         effect.World = world;
                         effect.Projection = camera.ProjectionMatrix;
                         //effect.Texture = stationTexture;
+                        HandleFog(effect);
                     }
                     mesh.Draw();
                 }
             }
+
+        
 
             //Matrix world2 = Matrix.CreateTranslation(new Vector3(1, 2, 1));
             //foreach (ModelMesh mesh in Bench.Meshes)
@@ -241,7 +261,8 @@ namespace MetroProject
                 {
                     part.Effect = LightEffect;
                     ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world3);
-                }
+                   
+                }             
                 mesh.Draw();
             }
             Matrix world5 = Matrix.CreateTranslation(new Vector3(18.0f, 10.0f, 5.0f));
@@ -251,6 +272,7 @@ namespace MetroProject
                 {
                     part.Effect = LightEffect;
                     ShaderHelper.InitializeShader(LightEffect, robotTexture, camera, mesh.ParentBone.Transform, world5);
+                   // HandleFog(LightEffect);
                 }
                 mesh.Draw();
             }
@@ -283,6 +305,14 @@ namespace MetroProject
             GuiBatch.End();
 
             this.IsMouseVisible = true;
+        }
+
+        private void HandleFog( BasicEffect effect)
+        {
+            effect.FogEnabled = true;
+            effect.FogColor = Color.CornflowerBlue.ToVector3(); // For best results, ake this color whatever your background is.
+            effect.FogStart = 9.75f;
+            effect.FogEnd = 10.25f;
         }
     }
 }
