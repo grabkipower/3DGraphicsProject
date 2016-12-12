@@ -23,9 +23,13 @@ namespace MetroProject
         Texture2D checkboxCheckedTexture;
         Texture2D checkboxUncheckedTexture;
         Texture2D additionalTexture;
-        
+
         RenderTarget2D renderTarget;
 
+        // Fog
+        FogController fog = new FogController();
+        // Gui
+        GUIController gui;
         //Camera
         Camera camera;
 
@@ -34,6 +38,7 @@ namespace MetroProject
         Model model;
         List<IPrimitive> primitives;
         Model Bench;
+        Screen screen;
 
         //Sprite
         SpriteFont spriteText;
@@ -44,16 +49,16 @@ namespace MetroProject
 
 
         // Program controls
-        bool MultiSampling = true;
+        public bool MultiSampling = true;
         bool PreviouslyPressedU = false;
         bool PreviouslyPressedB = false;
         bool PreviouslyPressedN = false;
         bool PreviouslyPressedSpace = false;
         float MipMapDepthLevels = 0.0f;
-        bool MagFilter = false;
-        bool MipMapFilter = false;
+        public bool MagFilter = false;
+        public bool MipMapFilter = false;
         bool GUIActive = false;
-
+        public Rozmiar rozdzielczosc = ResolutionProvider.sredni;
 
         public MetroGame()
         {
@@ -64,15 +69,12 @@ namespace MetroProject
         protected override void Initialize()
         {
             base.Initialize();
+            SetResolution();
+            InitializeCamera();
+              //UpdateViewMatrix();
 
-            //Setup Camera
-            camera = new Camera();
-            Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
-            camera.Initialize(graphics, Mouse.GetState());
-            //UpdateViewMatrix();
-
-            //Setup Primitives
-            primitives = new List<IPrimitive>();
+              //Setup Primitives
+              primitives = new List<IPrimitive>();
             var station = new MetroStation();
             station.Initialize(graphics, new Vector3(36.0f, 16.0f, 102.0f), stationTexture);
             station.LightingEffect = LightEffect;
@@ -82,6 +84,13 @@ namespace MetroProject
             platform.LightingEffect = LightEffect;
             primitives.Add(platform);
 
+            screen = new Screen();
+            screen.Initialize(graphics, new Vector3(1.0f, 6.0f, 12.0f), renderTarget);
+           // screen.LightingEffect = LightEffect;
+       //     primitives.Add(screen);
+
+
+
             renderTarget = new RenderTarget2D(
                 GraphicsDevice,
                 GraphicsDevice.PresentationParameters.BackBufferWidth,
@@ -90,6 +99,26 @@ namespace MetroProject
                 GraphicsDevice.PresentationParameters.BackBufferFormat,
                 DepthFormat.Depth24);
 
+        }
+
+        public void InitializeCamera()
+        {
+            //Setup Camera
+            camera = new Camera();
+            Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
+            camera.Initialize(graphics, Mouse.GetState());
+        }
+
+        public void SetResolution()
+        {
+            graphics.PreferredBackBufferWidth = rozdzielczosc.x;  // set this value to the desired width of your window
+            graphics.PreferredBackBufferHeight = rozdzielczosc.y;   // set this value to the desired height of your window
+            if (rozdzielczosc == ResolutionProvider.duzy)
+                graphics.IsFullScreen = true;
+            else
+                graphics.IsFullScreen = false;
+            graphics.ApplyChanges();
+            InitializeCamera();
         }
 
         protected override void LoadContent()
@@ -110,6 +139,8 @@ namespace MetroProject
             checkboxUncheckedTexture = Content.Load<Texture2D>("unchecked");
             additionalTexture = Content.Load<Texture2D>("metro2");
             GausianBlur = Content.Load<Effect>("gaussianblur");
+
+            gui = new GUIController(GuiBatch, guiTexture, checkboxCheckedTexture, checkboxUncheckedTexture, this, spriteText);
             //   stationTexture = CreateStaticMap(1000);
         }
 
@@ -129,7 +160,6 @@ namespace MetroProject
         protected override void UnloadContent()
         {
         }
-
         protected override void Update(GameTime gameTime)
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back ==
@@ -141,6 +171,10 @@ namespace MetroProject
             {
                 float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 2000.0f;
                 camera.ProcessInput(timeDifference, graphics);
+            }
+            else
+            {
+                gui.HandleGUIInput();
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.U) && PreviouslyPressedU == false)
@@ -185,6 +219,40 @@ namespace MetroProject
 
             base.Update(gameTime);
         }
+        //protected override void Update(GameTime gameTime)
+        //{
+        //    if (GamePad.GetState(PlayerIndex.One).Buttons.Back ==
+        //        ButtonState.Pressed || Keyboard.GetState().IsKeyDown(
+        //        Keys.Escape))
+        //        Exit();
+
+        //    if (!GUIActive)
+        //    {
+        //        float timeDifference = (float)gameTime.ElapsedGameTime.TotalMilliseconds / 2000.0f;
+        //        camera.ProcessInput(timeDifference, graphics);
+        //    }
+
+        //    if (!Keyboard.GetState().IsKeyDown(Keys.I)) MipMapDepthLevels -= 0.05f;
+        //    if (!Keyboard.GetState().IsKeyDown(Keys.L)) MipMapDepthLevels += 0.05f;
+
+        //    ChangeVarIfKeyPressed(Keys.U, PreviouslyPressedU, MultiSampling);
+        //    ChangeVarIfKeyPressed(Keys.B, PreviouslyPressedB, MagFilter);
+        //    ChangeVarIfKeyPressed(Keys.N, PreviouslyPressedN, MipMapFilter);
+        //    ChangeVarIfKeyPressed(Keys.Space, PreviouslyPressedSpace, GUIActive);
+
+        //    base.Update(gameTime);
+        //}
+
+        //private void ChangeVarIfKeyPressed(Keys key, bool prevPressed, bool changedVar)
+        //{
+        //    if (Keyboard.GetState().IsKeyDown(key) && prevPressed == false)
+        //    {
+        //        changedVar = !changedVar;
+        //        prevPressed = true;
+        //    }
+        //    if (!Keyboard.GetState().IsKeyDown(key))
+        //        prevPressed = false;
+        //}
 
 
         protected void DrawSceneToTexture(RenderTarget2D renderTarget, GameTime gameTime)
@@ -192,10 +260,10 @@ namespace MetroProject
             // Set the render target
             GraphicsDevice.SetRenderTarget(renderTarget);
 
-  
+
 
             // Draw the scene
-         //   GraphicsDevice.Clear(Color.CornflowerBlue);
+            //   GraphicsDevice.Clear(Color.CornflowerBlue);
             DrawScene(gameTime);
 
             // Drop the render target
@@ -205,7 +273,7 @@ namespace MetroProject
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.DepthStencilState = new DepthStencilState() { DepthBufferEnable = true };
-            DrawSceneToTexture(renderTarget, gameTime);      
+            DrawSceneToTexture(renderTarget, gameTime);
 
             GraphicsDevice.DepthStencilState = DepthStencilState.Default;
             DrawScene(gameTime);
@@ -213,8 +281,11 @@ namespace MetroProject
             renderTargetBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend,
                  SamplerState.LinearClamp, DepthStencilState.Default,
                  RasterizerState.CullNone, GausianBlur);
-            renderTargetBatch.Draw(renderTarget, destinationRectangle : new Rectangle(0, 0, 400, 400), color: Color.White);
+        //    renderTargetBatch.Draw(renderTarget, destinationRectangle: new Rectangle(0, 0, 400, 400), color: Color.White);
             renderTargetBatch.End();
+
+            screen.Draw(camera, graphics, renderTarget);
+
 
             base.Draw(gameTime);
             ShaderHelper.ChangeColor(0.01f);
@@ -223,7 +294,6 @@ namespace MetroProject
         private void DrawScene(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-           
 
             var ss = SetSamplerState();
             graphics.PreferMultiSampling = MultiSampling;
@@ -234,10 +304,10 @@ namespace MetroProject
             DrawCube();
             DrawShipsShifted();
 
-        //    base.Draw(gameTime);
+            //    base.Draw(gameTime);
 
             DrawInfoText(ss);
-            if (GUIActive) HandleGui(); else IsMouseVisible = false;
+            if (GUIActive) gui.DrawGUI(); else IsMouseVisible = false;
         }
 
         private SamplerState SetSamplerState()
@@ -278,7 +348,7 @@ namespace MetroProject
                         effect.World = world;
                         effect.Projection = camera.ProjectionMatrix;
                         //effect.Texture = stationTexture;
-                        HandleFog(effect);
+                        fog.HandleFog(effect);
                     }
                     mesh.Draw();
                 }
@@ -321,25 +391,6 @@ namespace MetroProject
                 , new Vector2(10, 10), Color.White);
             spriteBatch.End();
         }
-        private void HandleGui()
-        {
-            Rectangle MagFilterRect = new Rectangle();
-
-            GuiBatch.Begin();
-            GuiBatch.Draw(guiTexture, new Vector2(0.0f), Color.White);
-            GuiBatch.Draw(checkboxCheckedTexture,  destinationRectangle: new Rectangle(50, 50, 30, 30));
-            GuiBatch.End();
-
-            this.IsMouseVisible = true;
-        }
-        private void HandleFog( BasicEffect effect)
-        {
-            effect.FogEnabled = true;
-            effect.FogColor = Color.CornflowerBlue.ToVector3(); // For best results, ake this color whatever your background is.
-            effect.FogStart = 9.75f;
-            effect.FogEnd = 10.25f;
-        }
-
-
+    
     }
 }

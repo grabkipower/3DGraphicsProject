@@ -49,7 +49,6 @@ texture BasicTexture;
 
 sampler BasicTextureSampler = sampler_state {
 	texture = <BasicTexture>;
-
 };
 
 bool TextureEnabled = true;

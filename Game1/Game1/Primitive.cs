@@ -20,7 +20,7 @@ namespace Game1
 
 
 
-        public void Draw(Camera camera, GraphicsDeviceManager graphics)
+        public void Draw(Camera camera, GraphicsDeviceManager graphics, Texture2D DynamicTexture = null)
         {
             if (LightingEffect == null)
             {
@@ -31,7 +31,10 @@ namespace Game1
 
 
                 _basicEffect.TextureEnabled = true;
-                _basicEffect.Texture = texture;
+                if (DynamicTexture == null)
+                    _basicEffect.Texture = texture;
+                else
+                    _basicEffect.Texture = DynamicTexture;
 
                 //    EffectTechnique effectTechnique = _basicEffect.Techniques[0];
                 //   EffectPassCollection effectPassCollection = effectTechnique.Passes;
