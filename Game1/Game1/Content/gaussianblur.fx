@@ -1,4 +1,8 @@
-﻿sampler TextureSampler : register(s0);
+﻿
+texture BasicTexture;
+
+
+sampler TextureSampler : register(s0);
 Texture2D  myTex2D;
 
 float4 PixelShaderFunction(float4 pos : SV_POSITION, float4 color1 : COLOR0, float2 texCoord : TEXCOORD0) : SV_TARGET0

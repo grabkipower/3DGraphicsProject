@@ -20,7 +20,7 @@ namespace Game1
 
 
 
-        public void Draw(Camera camera, GraphicsDeviceManager graphics, Texture2D DynamicTexture = null)
+        public virtual void Draw(Camera camera, GraphicsDeviceManager graphics, Texture2D DynamicTexture = null)
         {
             if (LightingEffect == null)
             {
@@ -57,29 +57,51 @@ namespace Game1
             }
             else
             {
-                ShaderHelper.InitializeShader(LightingEffect, texture, camera, null, null);
-                //Matrix world = Matrix.CreateTranslation(new Vector3(0,0,0));
-                //LightingEffect.Parameters["World"].SetValue(world);
-                //LightingEffect.Parameters["View"].SetValue(camera.ViewMatrix);
-                //LightingEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
-                //LightingEffect.Parameters["BasicTexture"].SetValue(texture);
-
-
-                foreach (var pass in LightingEffect.CurrentTechnique.Passes)
+                if (LightingEffect.Name == "lighting")
                 {
-                    pass.Apply();
+                    ShaderHelper.InitializeShader(LightingEffect, texture, camera, null, null);
+                    //Matrix world = Matrix.CreateTranslation(new Vector3(0,0,0));
+                    //LightingEffect.Parameters["World"].SetValue(world);
+                    //LightingEffect.Parameters["View"].SetValue(camera.ViewMatrix);
+                    //LightingEffect.Parameters["Projection"].SetValue(camera.ProjectionMatrix);
+                    //LightingEffect.Parameters["BasicTexture"].SetValue(texture);
 
-                    graphics.GraphicsDevice.DrawUserPrimitives(
-                        // We’ll be rendering two trinalges
-                        PrimitiveType.TriangleList,
-                        // The array of verts that we want to render
-                        _vertices,
-                        // The offset, which is 0 since we want to start 
-                        // at the beginning of the floorVerts array
-                        0,
-                        // The number of triangles to draw
-                        TriangleNum);
+
+                    foreach (var pass in LightingEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        graphics.GraphicsDevice.DrawUserPrimitives(
+                            // We’ll be rendering two trinalges
+                            PrimitiveType.TriangleList,
+                            // The array of verts that we want to render
+                            _vertices,
+                            // The offset, which is 0 since we want to start 
+                            // at the beginning of the floorVerts array
+                            0,
+                            // The number of triangles to draw
+                            TriangleNum);
+                    }
                 }
+                else //if( LightingEffect.Name == "gaussianblur")
+                {
+                    foreach (var pass in LightingEffect.CurrentTechnique.Passes)
+                    {
+                        pass.Apply();
+
+                        graphics.GraphicsDevice.DrawUserPrimitives(
+                            // We’ll be rendering two trinalges
+                            PrimitiveType.TriangleList,
+                            // The array of verts that we want to render
+                            _vertices,
+                            // The offset, which is 0 since we want to start 
+                            // at the beginning of the floorVerts array
+                            0,
+                            // The number of triangles to draw
+                            TriangleNum);
+                    }
+                }
+
             }
 
         }

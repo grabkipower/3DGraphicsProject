@@ -96,7 +96,7 @@ namespace Game1
                                    GraphicsDevice.Viewport.AspectRatio,
                     1f, 1000f);
             ViewMatrix = Matrix.CreateLookAt(CamPosition, CamTarget,
-                         new Vector3(0f, 1f, 0f));// Y up
+                         new Vector3(1f, 1f, 0f));// Y up
             WorldMatrix = Matrix.CreateWorld(CamTarget, Vector3.
                           Forward, Vector3.Up);
         }
