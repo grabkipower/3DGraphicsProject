@@ -14,7 +14,7 @@ namespace Game1
       //  BasicEffect effect;
         public override void Initialize(GraphicsDeviceManager graphics, Vector3 _size, Texture2D _texture)
         {
-            Sphere(2.0f, graphics.GraphicsDevice);
+            Sphere(3.0f, graphics.GraphicsDevice);
             //Size = _size;
             //texture = _texture;
             //TriangleNum = 12;
@@ -171,7 +171,7 @@ namespace Game1
         {
             effect.View = camera.ViewMatrix;
             effect.Projection = camera.ProjectionMatrix;
-            graphicd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid }; // Wireframe as in the picture
+  //          graphicd.RasterizerState = new RasterizerState() { FillMode = FillMode.Solid }; // Wireframe as in the picture
                                                                                             //     ShaderHelper.InitializeShader(LightingEffect, texture, camera, null, null);
             LightingEffect.Parameters["WorldViewProjection"].SetValue(camera.WorldMatrix * camera.ViewMatrix * camera.ProjectionMatrix);
             foreach (EffectPass pass in LightingEffect.CurrentTechnique.Passes)

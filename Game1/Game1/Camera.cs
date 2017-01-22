@@ -89,14 +89,14 @@ namespace Game1
         {
             originalMouseState = _originalMouseState;
 
-            CamTarget = new Vector3(0f, 0f, 0f);
+            CamTarget = new Vector3(-22.5f, -5.0f, 0f);
             CamPosition = new Vector3(0f, 0f, -5);
             ProjectionMatrix = Matrix.CreatePerspectiveFieldOfView(
                                    MathHelper.ToRadians(45f), graphics.
                                    GraphicsDevice.Viewport.AspectRatio,
                     1f, 1000f);
             ViewMatrix = Matrix.CreateLookAt(CamPosition, CamTarget,
-                         new Vector3(1f, 1f, 0f));// Y up
+                         new Vector3(0, 1f, 0));// Y up
             WorldMatrix = Matrix.CreateWorld(CamTarget, Vector3.
                           Forward, Vector3.Up);
         }
@@ -106,12 +106,19 @@ namespace Game1
             MouseState currentMouseState = Mouse.GetState();
             if (currentMouseState != originalMouseState)
             {
-                float xDifference = currentMouseState.X - originalMouseState.X;
-                float yDifference = currentMouseState.Y - originalMouseState.Y;
-                leftrightRot -= rotationSpeed * xDifference * amount;
-                updownRot -= rotationSpeed * yDifference * amount;
-                Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
-                UpdateViewMatrix();
+                try
+                {
+                    float xDifference = currentMouseState.X - originalMouseState.X;
+                    float yDifference = currentMouseState.Y - originalMouseState.Y;
+                    leftrightRot -= rotationSpeed * xDifference * amount;
+                    updownRot -= rotationSpeed * yDifference * amount;
+                    Mouse.SetPosition(graphics.GraphicsDevice.Viewport.Width / 2, graphics.GraphicsDevice.Viewport.Height / 2);
+                    UpdateViewMatrix();
+                }
+                catch
+                {
+
+                }
             }
 
             Vector3 moveVector = new Vector3(0, 0, 0);
